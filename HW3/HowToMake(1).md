@@ -1,4 +1,4 @@
-#### 나는 사각형으로 돌아가는 원을 만들고 싶은데 어떻게 만들지?
+#### 나는 각지게 돌아가는 걸 만들고 싶은데 어떻게 만들지?
 
 
 
@@ -37,7 +37,7 @@ if (SUCCEEDED(hr))
 ```
 
 이걸 쓰면 사다리꼴이 그려지니까 이걸 활용해보자.
-
+<br> <br>
 
 
 ```c++
@@ -68,19 +68,19 @@ m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(500, 200));
 ```
 
 여기가 시작점
-
+<br> <br>
 
 
 ```c++
 D2D1_POINT_2F points[3] = {
-					D2D1::Point2F(200, 0),
-					D2D1::Point2F(300, 200),
-					D2D1::Point2F(100, 200)
-					};
+		D2D1::Point2F(200, 0),
+		D2D1::Point2F(300, 200),
+		D2D1::Point2F(100, 200)
+};
 ```
 
 이게 점
-
+<br> <br>
 
 
 ```c++
@@ -88,24 +88,25 @@ pSimplifiedSink->AddLines(points, 3);
 ```
 
 이걸 이으면?
+<br> <br>
 
 
+![그림1](https://user-images.githubusercontent.com/64337152/117447241-34b2c700-af78-11eb-9b2a-211b75637451.png)
 
-![그림1](C:\Users\suhg3\OneDrive\바탕 화면\그림1.png)
 
 
 
 ---
 
-![그림3](C:\Users\suhg3\OneDrive\바탕 화면\그림3.jpg)
+![그림3](https://user-images.githubusercontent.com/64337152/117447216-2c5a8c00-af78-11eb-93fe-876a98855d70.jpg)
 
 내가 그리고 싶은 형태
-
+<br> <br>
 특징
 
 - 숫자가 10씩 커짐
 - i가 3, 7, 11, ... 로 바뀌는 순간에 x = (-1)* y로 바뀜
-
+<br> <br>
 
 
 < 코드 >
@@ -131,7 +132,7 @@ pSimplifiedSink->AddLines(points, 3);
 
 				pSimplifiedSink->EndFigure(D2D1_FIGURE_END_OPEN);
 ```
-
+<br> <br>
 
 
 < 코드 설명 >
@@ -143,7 +144,7 @@ pSimplifiedSink->AddLine(movedPoint);
 
 점을 하나 만들 때마다 선을 그을 거야.
 
-
+<br> <br>
 
 ```c++
 					if (isX) {
@@ -163,10 +164,11 @@ x 차례면 base * i (= 10, 20, 30, ...)을 해줘. 만약 x가 음수로 바뀌
 
 반대로 y 차례면 x의 값을 그대로 갖다 써.
 
-
+<br> <br>
 
 < 결과 >
 
-![그림2](C:\Users\suhg3\OneDrive\바탕 화면\그림2.png)
+![그림2](https://user-images.githubusercontent.com/64337152/117447264-3a101180-af78-11eb-92b1-f8c1d89cbda4.png)
+
 
 빙글빙글
