@@ -203,7 +203,7 @@ hr = m_pPathGeometry->Open(&pSink);
 				)
 			);
 ```
-__ArcSegment()__가 두 점 사이에 타원을 그리는 함수야. 그래서 빨간선이 동그란 거지.
+**ArcSegment()** 가 두 점 사이에 타원을 그리는 함수야. 그래서 빨간선이 동그란 거지.
 
 currentLocation을 기준으로 D2D1::SizeF(2 * radius, 2 * radius)를 반지름으로 그리는 거지.
 
