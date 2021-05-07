@@ -1,6 +1,7 @@
-#### 노란 삼각형이 왜 빨간선을 따라갈까?
+### 노란 삼각형이 왜 빨간선을 따라갈까?
 
-<img src="C:\Users\suhg3\OneDrive\바탕 화면\그림5.gif" alt="그림5" style="zoom:67%;" />
+![그림5](https://user-images.githubusercontent.com/64337152/117446923-c53cd780-af77-11eb-8003-97d01be1eae6.gif)
+
 
 ```c++
 HRESULT DemoApp::OnRender()
