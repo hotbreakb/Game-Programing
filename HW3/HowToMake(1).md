@@ -141,9 +141,14 @@ pSimplifiedSink->AddLines(points, 3);
 D2D1_POINT_2F movedPoint = D2D1::Point2F(x, y);
 pSimplifiedSink->AddLine(movedPoint);
 ```
-
 점을 하나 만들 때마다 선을 그을 거야.
 
+<br> <br>
+
+```
+pSimplifiedSink->EndFigure(D2D1_FIGURE_END_OPEN);
+```
+시작점과 끝점의 연결은 필요없기 때문에 OPEN으로 변경
 <br> <br>
 
 ```c++
