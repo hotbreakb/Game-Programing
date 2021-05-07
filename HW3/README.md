@@ -61,7 +61,7 @@ HRESULT DemoApp::OnRender()
 
 
 여기서 일부를 떼어서 보자.
-
+<br> <br>
 
 
 ```
@@ -74,7 +74,7 @@ length = m_Animation.GetValue(0.0);
 
 ​	m_pPathGeometry 이게 뭘까?
 
-
+<br> <br>
 
 ```
 m_pRT->DrawGeometry(m_pPathGeometry, m_pRedBrush);
@@ -82,7 +82,7 @@ m_pRT->DrawGeometry(m_pPathGeometry, m_pRedBrush);
 
 아, 빨간 선이네. 근데 빨간 선에 저 동그란 게 어떻게 저장되어 있지?
 
-
+<br> <br>
 
 이 함수에 보니까 이게(m_pPathGeometry ) 있네.
 
@@ -142,14 +142,14 @@ HRESULT DemoApp::CreateDeviceIndependentResources()
 ```
 
 
-
+<br> <br>
 ```
 hr = m_pD2DFactory->CreatePathGeometry(&m_pPathGeometry);
 ```
 
 오, 만들었어!
 
-
+<br> <br>
 
 ```
 hr = m_pPathGeometry->Open(&pSink);
@@ -157,7 +157,7 @@ hr = m_pPathGeometry->Open(&pSink);
 
 수정을 하네.
 
-
+<br> <br>
 
 ```
 		D2D1_POINT_2F currentLocation = { 0, 0 };
@@ -189,7 +189,7 @@ hr = m_pPathGeometry->Open(&pSink);
 ```
 
 이게 동그랗게 그리는 거 같은데?
-
+<br> <br>
 
 
 ```
@@ -203,12 +203,11 @@ hr = m_pPathGeometry->Open(&pSink);
 				)
 			);
 ```
-
 __ArcSegment()__가 두 점 사이에 타원을 그리는 함수야. 그래서 빨간선이 동그란 거지.
 
 currentLocation을 기준으로 D2D1::SizeF(2 * radius, 2 * radius)를 반지름으로 그리는 거지.
 
-
+<br> <br>
 
 0.0f: 값을 바꿔봤는데 바뀌는 게 없어..
 
