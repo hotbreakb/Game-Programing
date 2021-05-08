@@ -1,179 +1,220 @@
-#### 나는 각지게 돌아가는 걸 만들고 싶은데 어떻게 만들지?
+### 노란 삼각형이 왜 빨간선을 따라갈까?
 
-
-
-```c++
-if (SUCCEEDED(hr))
-	{
-		hr = m_pD2DFactory->CreatePathGeometry(&m_pPathGeometry1);
-
-		if (SUCCEEDED(hr))
-		{
-			// 경로 기하에 조각들을 기록하기 위해서 기하 싱크를 얻음.
-			hr = m_pPathGeometry1->Open(&pSimplifiedSink);
-
-			if (SUCCEEDED(hr))
-			{
-				pSimplifiedSink->BeginFigure(
-					D2D1::Point2F(0, 0),
-					D2D1_FIGURE_BEGIN_FILLED
-					);
-
-				D2D1_POINT_2F points[3] = {
-					D2D1::Point2F(200, 0),
-					D2D1::Point2F(300, 200),
-					D2D1::Point2F(100, 200)
-					};
-
-				pSimplifiedSink->AddLines(points, 3);
-
-				pSimplifiedSink->EndFigure(D2D1_FIGURE_END_CLOSED);
-
-				hr = pSimplifiedSink->Close();
-			}
-		}
-		SAFE_RELEASE(pSimplifiedSink);
-	}
-```
-
-이걸 쓰면 사다리꼴이 그려지니까 이걸 활용해보자.
-<br> <br>
+![그림5](https://user-images.githubusercontent.com/64337152/117446923-c53cd780-af77-11eb-8003-97d01be1eae6.gif)
 
 
 ```c++
 HRESULT DemoApp::OnRender()
 {
-	HRESULT hr = CreateDeviceResources();
+	HRESULT hr;
 
+	hr = CreateDeviceResources();
 	if (SUCCEEDED(hr))
 	{
-		m_pRenderTarget->BeginDraw();
+		D2D1_POINT_2F point;
+		D2D1_POINT_2F tangent;
 
-		m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+		D2D1_MATRIX_3X2_F triangleMatrix;
+		D2D1_SIZE_F rtSize = m_pRT->GetSize();
+		float minWidthHeightScale = min(rtSize.width, rtSize.height) / 512;
 
-		m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+		D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(minWidthHeightScale, minWidthHeightScale);
 
-		D2D1_SIZE_F rtSize = m_pRenderTarget->GetSize();
+		D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(rtSize.width / 2, rtSize.height / 2);
 
-		m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(500, 200));
-		m_pRenderTarget->DrawGeometry(m_pPathGeometry1, m_pBlackBrush, 5);
+		// 그리기를 준비함.
+		m_pRT->BeginDraw();
 
-		hr = m_pRenderTarget->EndDraw();
+		// 변환을 항등행렬로 리셋함.
+		m_pRT->SetTransform(D2D1::Matrix3x2F::Identity());
+
+		// 렌더타겟을 클리어함.
+		m_pRT->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+
+		// 이동 동선 기하 경로가 화면 중심에 그려지도록 함.
+		m_pRT->SetTransform(scale * translation);
+
+		// 이동 동선을 붉은색으로 그림.
+		m_pRT->DrawGeometry(m_pPathGeometry, m_pRedBrush);
+
+		static float anim_time = 0.0f;
+
+		float length = m_Animation.GetValue(anim_time);
+
+		// 현재 시간에 해당하는 기하 길이에 일치하는 이동 동선 상의 지점을 얻음.
+		m_pPathGeometry->ComputePointAtLength(length, NULL, &point, &tangent);
+
+		// 삼각형의 방향을 조절하여 이동 동선을 따라가는 방향이 되도록 함.
+		triangleMatrix = D2D1::Matrix3x2F(
+			tangent.x, tangent.y,
+			-tangent.y, tangent.x,
+			point.x, point.y);
+
+		m_pRT->SetTransform(triangleMatrix * scale * translation);
+
+		// 삼각형을 노란색으로 그림.
+		m_pRT->FillGeometry(m_pObjectGeometry, m_pYellowBrush);
+
+		// 그리기 연산들을 제출함.
+		hr = m_pRT->EndDraw();
+```
+
+
+
+여기서 일부를 떼어서 보자.
+<br> <br>
+
+
+```
+m_pPathGeometry->ComputePointAtLength(length, NULL, &point, &tangent);
+```
+
+length = m_Animation.GetValue(0.0);
+
+​	→ 바로 갈 수 있는 길로 가자!
+
+​	m_pPathGeometry 이게 뭘까?
+
+<br> <br>
+
+```
+m_pRT->DrawGeometry(m_pPathGeometry, m_pRedBrush);
+```
+
+아, 빨간 선이네. 근데 빨간 선에 저 동그란 게 어떻게 저장되어 있지?
+
+<br> <br>
+
+이 함수에 보니까 이게(m_pPathGeometry ) 있네.
+
+```c++
+HRESULT DemoApp::CreateDeviceIndependentResources()
+{
+	HRESULT hr;
+	ID2D1GeometrySink* pSink = NULL;
+
+	// D2D 팩토리를 생성함.
+	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2DFactory);
+
+	// 나선형 모양의 경로 기하를 생성함.
+	if (SUCCEEDED(hr))
+	{
+		hr = m_pD2DFactory->CreatePathGeometry(&m_pPathGeometry);
 	}
+	if (SUCCEEDED(hr))
+	{
+		hr = m_pPathGeometry->Open(&pSink);
+	}
+	if (SUCCEEDED(hr))
+	{
+		D2D1_POINT_2F currentLocation = { 0, 0 };
+
+		pSink->BeginFigure(currentLocation, D2D1_FIGURE_BEGIN_FILLED);
+
+		D2D1_POINT_2F locDelta = { 2, 2 };
+		float radius = 3;
+
+		for (UINT i = 0; i < 30; ++i)
+		{
+			currentLocation.x += radius * locDelta.x;
+			currentLocation.y += radius * locDelta.y;
+
+			pSink->AddArc(
+				D2D1::ArcSegment(
+					currentLocation,
+					D2D1::SizeF(2 * radius, 2 * radius), // radiusx/y size
+					0.0f, // rotation angle
+					D2D1_SWEEP_DIRECTION_CLOCKWISE,
+					D2D1_ARC_SIZE_SMALL
+				)
+			);
+
+			locDelta = D2D1::Point2F(-locDelta.y, locDelta.x);
+
+			radius += 3;
+		}
+
+		pSink->EndFigure(D2D1_FIGURE_END_OPEN);
+
+		hr = pSink->Close();
+	}
+
+	SAFE_RELEASE(pSink);
 ```
 
 
-```c++
-m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(500, 200));
-```
-
-여기가 시작점
 <br> <br>
-
-
-```c++
-D2D1_POINT_2F points[3] = {
-		D2D1::Point2F(200, 0),
-		D2D1::Point2F(300, 200),
-		D2D1::Point2F(100, 200)
-};
+```
+hr = m_pD2DFactory->CreatePathGeometry(&m_pPathGeometry);
 ```
 
-이게 점
-<br> <br>
-
-
-```c++
-pSimplifiedSink->AddLines(points, 3);
-```
-
-이걸 이으면?
-<br> <br>
-
-
-![그림1](https://user-images.githubusercontent.com/64337152/117447241-34b2c700-af78-11eb-9b2a-211b75637451.png)
-
-
-
-
----
-
-![그림3](https://user-images.githubusercontent.com/64337152/117447216-2c5a8c00-af78-11eb-93fe-876a98855d70.jpg)
-
-내가 그리고 싶은 형태
-<br> <br>
-특징
-
-- 숫자가 10씩 커짐
-- i가 3, 7, 11, ... 로 바뀌는 순간에 x = (-1)* y로 바뀜
-<br> <br>
-
-
-< 코드 >
-
-```c++
-				int x(0), y(0);
-				int base(10);
-				bool isX = true;
-				for (int i = 1; i < 20; i++) {
-					
-					D2D1_POINT_2F movedPoint = D2D1::Point2F(x, y);
-					pSimplifiedSink->AddLine(movedPoint);
-					if (isX) {
-						x = base * i;
-						if ((i-3)%4 == 0) x = (-1) * x;
-						isX = false;
-					}
-					else {
-						y = x;
-						isX = true;
-					}
-				}
-
-				pSimplifiedSink->EndFigure(D2D1_FIGURE_END_OPEN);
-```
-<br> <br>
-
-
-< 코드 설명 >
-
-```
-D2D1_POINT_2F movedPoint = D2D1::Point2F(x, y);
-pSimplifiedSink->AddLine(movedPoint);
-```
-점을 하나 만들 때마다 선을 그을 거야.
+오, 만들었어!
 
 <br> <br>
 
 ```
-pSimplifiedSink->EndFigure(D2D1_FIGURE_END_OPEN);
-```
-시작점과 끝점의 연결은 필요없기 때문에 OPEN으로 변경
-<br> <br>
-
-```c++
-					if (isX) {
-						x = base * i;
-						if ((i-3)%4 == 0) x = (-1) * x;
-						isX = false;
-					}
-					else {
-						y = x;
-						isX = true;
-					}
+hr = m_pPathGeometry->Open(&pSink);
 ```
 
-isX:  x차례
-
-x 차례면 base * i (= 10, 20, 30, ...)을 해줘. 만약 x가 음수로 바뀌는 시점에는 (-1)을 곱해.
-
-반대로 y 차례면 x의 값을 그대로 갖다 써.
+수정을 하네.
 
 <br> <br>
 
-< 결과 >
+```
+		D2D1_POINT_2F currentLocation = { 0, 0 };
 
-![그림2](https://user-images.githubusercontent.com/64337152/117447264-3a101180-af78-11eb-92b1-f8c1d89cbda4.png)
+		pSink->BeginFigure(currentLocation, D2D1_FIGURE_BEGIN_FILLED);
+
+		D2D1_POINT_2F locDelta = { 2, 2 };
+		float radius = 3;
+
+		for (UINT i = 0; i < 30; ++i)
+		{
+			currentLocation.x += radius * locDelta.x;
+			currentLocation.y += radius * locDelta.y;
+
+			pSink->AddArc(
+				D2D1::ArcSegment(
+					currentLocation,
+					D2D1::SizeF(2 * radius, 2 * radius), // radiusx/y size
+					0.0f, // rotation angle
+					D2D1_SWEEP_DIRECTION_CLOCKWISE,
+					D2D1_ARC_SIZE_SMALL
+				)
+			);
+
+			locDelta = D2D1::Point2F(-locDelta.y, locDelta.x);
+
+			radius += 3;
+		}
+```
+
+이게 동그랗게 그리는 거 같은데?
+<br> <br>
 
 
-빙글빙글
+```
+			pSink->AddArc(
+				D2D1::ArcSegment(
+					currentLocation,
+					D2D1::SizeF(2 * radius, 2 * radius),
+					0.0f,
+					D2D1_SWEEP_DIRECTION_CLOCKWISE,
+					D2D1_ARC_SIZE_SMALL
+				)
+			);
+```
+**ArcSegment()** 가 두 점 사이에 타원을 그리는 함수야. 그래서 빨간선이 동그란 거지.
+
+currentLocation을 기준으로 D2D1::SizeF(2 * radius, 2 * radius)를 반지름으로 그리는 거지.
+
+<br> <br>
+
+0.0f: 값을 바꿔봤는데 바뀌는 게 없어..
+
+D2D1_SWEEP_DIRECTION_CLOCKWISE : 시계 방향
+
+D2D1_ARC_SIZE_SMALL: An arc's sweep should be 180 degrees or less. (호의 sweep이 뭐야?)
+
+
+
