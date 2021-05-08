@@ -45,5 +45,36 @@ HRESULT DemoApp::OnRender()
 
 **경쟁 구도!**
 
+```c++
+case WM_KEYDOWN:
+			{
+				if (wParam == VK_ESCAPE) PostQuitMessage(0);
+				else if (wParam == VK_SPACE) {
+					spaceBar += 0.05;
+					pDemoApp->m_Animation2.SetDuration(USER_VELOCITY - spaceBar);
+				}
+```
+
+SetDuration() 안에 들어가는 변수가 작아질수록 이동속도가 빨라진다.
 
 
+
+![그림8](C:\Users\suhg3\OneDrive\바탕 화면\그림8.gif)
+
+이건 원래 속도
+
+
+
+![그림9](C:\Users\suhg3\OneDrive\바탕 화면\그림9.gif)
+
+스페이스바를 연타하면 어느 정도 속도가 비슷해짐
+
+텍스트를 넣어서 속도가 점점 빨라지고 있다는 걸 보여줘야겠다.
+
+나중엔 UI도 넣어야지.
+
+
+
+삼각형 대신 비행기를 넣어볼까?
+
+불투명 마스크 적용이 잘 되지 않아서 일단 패스~
