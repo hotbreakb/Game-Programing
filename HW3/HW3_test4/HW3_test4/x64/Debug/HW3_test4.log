@@ -1,5 +1,0 @@
-﻿  main.cpp
-C:\Users\suhg3\source\repos\HW3_test4\HW3_test4\main.cpp(186,15): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\suhg3\source\repos\HW3_test4\HW3_test4\main.cpp(250,15): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\suhg3\source\repos\HW3_test4\HW3_test4\main.cpp(701,22): warning C4305: '+=': 'double'에서 'float'(으)로 잘립니다.
-  HW3_test4.vcxproj -> C:\Users\suhg3\source\repos\HW3_test4\x64\Debug\HW3_test4.exe
