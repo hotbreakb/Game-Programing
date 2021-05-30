@@ -6,6 +6,6 @@
 - 불투명 마스크 기능 사용
 <br><br>
 
-![HW3](https://user-images.githubusercontent.com/64337152/118355175-ac50a980-b5a9-11eb-86f6-c2943c5ea3e2.gif)
+<img src="https://user-images.githubusercontent.com/64337152/118355066-11f06600-b5a9-11eb-8348-1dc0b8fe7beb.png" width="600">
 
-![image](https://user-images.githubusercontent.com/64337152/118355066-11f06600-b5a9-11eb-8348-1dc0b8fe7beb.png)
+![HW3](https://user-images.githubusercontent.com/64337152/118355175-ac50a980-b5a9-11eb-86f6-c2943c5ea3e2.gif)
